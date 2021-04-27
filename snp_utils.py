@@ -2,7 +2,7 @@
 """A script to find SNP positions"""
 
 import sys
-if sys.version_info.major is not 3:
+if sys.version_info.major != 3:
     sys.exit("Please use Python 3 for this script")
 
 
@@ -171,7 +171,7 @@ def alignment_based(args, lookup_dict):
     except FileNotFoundError as error:
         sys.exit("Failed to find " + error.filename)
     for snpid in lookup_dict:
-        if snpid in alignment_dict.keys() and alignment_dict[snpid].get_contig() is not '*':
+        if snpid in alignment_dict.keys() and alignment_dict[snpid].get_contig() != '*':
             s = snp.SNP(
                 lookup=lookup_dict[snpid],
                 alignment=alignment_dict[snpid],
