@@ -91,7 +91,7 @@ python3 snp_utils.py SAM \
 --lookup /home/username/Cowpea/SNP_Utils/iSelect_all.txt \
 --sam-file /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea_BWA.sam \
 --reference /home/username/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.fa \
---by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consensus_map.txt \
+--by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consesus_map_plink.txt \
 --outname /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea
 ```
 Below is an example of SNP\_Utils run against an XML file created by running `blastn` with SNP contextual sequence against a local BLAST database created from a genome sequence. There is a good example of this process running against barley reference genomes at this [link](https://github.com/MorrellLAB/morex_reference/tree/master/morex_v2/50k_9k_BOPA_SNP#data-preparation).
@@ -102,7 +102,7 @@ python3 snp_utils.py SAM \
 --lookup /home/username/Cowpea/SNP_Utils/iSelect_all.txt \
 --xml /home/username/Cowpea/SNP_Utils/cowpea_snps.xml \
 --reference /home/username/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.fa \
---by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consensus_map.txt \
+--by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consesus_map_plink.txt \
 --outname /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea
 ```
 
