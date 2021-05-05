@@ -81,6 +81,32 @@ SNP\_Utils creates between one and six output files.
 | *output*_masked.vcf | VCF file with masked ('N') alternate states for each SNP, these are SNPs that we could not find a position for given the Illumina lookup table, generated from `BLAST` and `SAM` if there were masked SNPs |
 | *output*_failed.log | List of SNP IDs that we could not find at all, generated from `BLAST` and `SNP` if there were failures|
 
+## Example usage
+
+Below is an example of SNP\_Utils run against a sam alignment file of SNP contextual sequence mapped to a reference genome using [BWA MEM](https://github.com/lh3/bwa). The example is based on genomic resources for cowpea.
+
+```bash
+cd /home/username/Software/SNP_Utils
+python3 snp_utils.py SAM \
+--lookup /home/username/Cowpea/SNP_Utils/iSelect_all.txt \
+--sam-file /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea_BWA.sam \
+--reference /home/username/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.fa \
+--by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consensus_map.txt \
+--outname /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea
+```
+Below is an example of SNP\_Utils run against an XML file created by running `blastn` with SNP contextual sequence against a local BLAST database created from a genome sequence. There is a good example of this process running against barley reference genomes at this [link](https://github.com/MorrellLAB/morex_reference/tree/master/morex_v2/50k_9k_BOPA_SNP#data-preparation).
+
+```bash
+cd /home/username/Software/SNP_Utils
+python3 snp_utils.py SAM \
+--lookup /home/username/Cowpea/SNP_Utils/iSelect_all.txt \
+--xml /home/username/Cowpea/SNP_Utils/cowpea_snps.xml \
+--reference /home/username/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.fa \
+--by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consensus_map.txt \
+--outname /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea
+```
+
+
 ## Dependencies
 SNP\_Utils depends on the following:
 -   [Python 3](https://www.python.org/downloads/)
