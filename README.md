@@ -94,18 +94,16 @@ python3 snp_utils.py SAM \
 --by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consesus_map_plink.txt \
 --outname /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea
 ```
-Below is an example of SNP\_Utils run against an XML file created by running `blastn` with SNP contextual sequence against a local BLAST database created from a genome sequence. There is a good example of this process running against barley reference genomes at this [link](https://github.com/MorrellLAB/morex_reference/tree/master/morex_v2/50k_9k_BOPA_SNP#data-preparation).
+Below is an example of SNP\_Utils run against an XML file created by running `blastn` with SNP contextual sequence against a local BLAST database created from a genome sequence. There is an example `blastn` bash script [here](https://github.com/pmorrell/Utilities/blob/master/blastn.sh). It is important that the fasta file contain no non-IUPAC characters. Consider using a search similar to `grep -i -E '[^ACTGNKMRSWY]+' iSelect_all.fas`. There is a good example of this process running against barley reference genomes at this [link](https://github.com/MorrellLAB/morex_reference/tree/master/morex_v2/50k_9k_BOPA_SNP#data-preparation).
 
 ```bash
 cd /home/username/Software/SNP_Utils
-python3 snp_utils.py SAM \
+python3 snp_utils.py BLAST \
 --lookup /home/username/Cowpea/SNP_Utils/iSelect_all.txt \
 --xml /home/username/Cowpea/SNP_Utils/cowpea_snps.xml \
---reference /home/username/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.fa \
 --by-chrom --genetic-map /home/username/Cowpea/SNP_Utils/Cowpea_consesus_map_plink.txt \
---outname /home/username/Cowpea/SNP_Utils/bwa/iSelect_cowpea
+--outname /home/username/Cowpea/SNP_Utils/iSelect_cowpea_blast
 ```
-
 
 ## Dependencies
 SNP\_Utils depends on the following:
