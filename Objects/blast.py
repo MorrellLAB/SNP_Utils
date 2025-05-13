@@ -2,7 +2,8 @@
 """This module holds two classes and one error"""
 
 import sys
-if sys.version_info.major is not 3:
+
+if sys.version_info.major != 3:
     sys.exit("Please use Python 3 for this module: " + __name__)
 
 
@@ -18,27 +19,29 @@ except ImportError as error:
 
 #   A tuple of values that need to be parsed for each HSP
 VALS = (
-    'Hsp_bit-score',
-    'Hsp_evalue',
-    'Hsp_hit-from',
-    'Hsp_hit-to',
-    'Hsp_hit-frame',
-    'Hsp_identity',
-    'Hsp_align-len',
-    'Hsp_qseq',
-    'Hsp_hseq'
+    "Hsp_bit-score",
+    "Hsp_evalue",
+    "Hsp_hit-from",
+    "Hsp_hit-to",
+    "Hsp_hit-frame",
+    "Hsp_identity",
+    "Hsp_align-len",
+    "Hsp_qseq",
+    "Hsp_hseq",
 )
 
 #   The message found in a BLAST iteration if no hits were found
-NO_HIT_MESSAGE = 'No hits found'
+NO_HIT_MESSAGE = "No hits found"
 
 #   The message if no definition line, used to decide if we use accessions instead of deflines
-NO_DEF_MESSAGE = 'No definition line'
+NO_DEF_MESSAGE = "No definition line"
+
 
 #   An error I probably overuse...
 class NoSNPError(Exception):
     """A SNP has not been found"""
-    def __init__(self, message): # Make this error infinitely more useful
+
+    def __init__(self, message):  # Make this error infinitely more useful
         super(self.__class__, self).__init__(message)
         self.message = str(message)
 
@@ -59,10 +62,23 @@ class Hsp(object):
         Identity                            (int)
         Aligned length                      (int)
         SNP Position relative to subject (once calcualted with Hsp.get_snp_position())
-        """
+    """
 
-    def __init__(self, chrom, name, evalue, qseq, hseq, hstart, hend, hstrand, bit_score, identity, aligned_length):
-        try: # Type checking
+    def __init__(
+        self,
+        chrom,
+        name,
+        evalue,
+        qseq,
+        hseq,
+        hstart,
+        hend,
+        hstrand,
+        bit_score,
+        identity,
+        aligned_length,
+    ):
+        try:  # Type checking
             assert isinstance(chrom, str)
             assert isinstance(name, str)
             assert isinstance(evalue, float)
@@ -76,23 +92,23 @@ class Hsp(object):
             assert isinstance(aligned_length, int)
         except AssertionError:
             raise TypeError
-        try: # Value checking
+        try:  # Value checking
             assert hstrand == 1 or hstrand == -1
             assert identity <= aligned_length
         except AssertionError:
             raise ValueError
         #   Hsp information
-        self._chrom = chrom # Hit_def/Hit_accession
-        self._name = name # Iteration_query-def
-        self._evalue = evalue # Hsp_evalue
-        self._query = qseq # Hsp_qseq
-        self._subject = hseq # Hsp_hseq
-        self._start = hstart # Hsp_hit-from
-        self._end = hend # Hsp_hit-to
-        self._hstrand = hstrand #Hsp_hit-strand
-        self._bits = bit_score # Hsp_bit-score
-        self._identity = identity # Hsp_identity
-        self._alength = aligned_length # Hsp_align-len
+        self._chrom = chrom  # Hit_def/Hit_accession
+        self._name = name  # Iteration_query-def
+        self._evalue = evalue  # Hsp_evalue
+        self._query = qseq  # Hsp_qseq
+        self._subject = hseq  # Hsp_hseq
+        self._start = hstart  # Hsp_hit-from
+        self._end = hend  # Hsp_hit-to
+        self._hstrand = hstrand  # Hsp_hit-strand
+        self._bits = bit_score  # Hsp_bit-score
+        self._identity = identity  # Hsp_identity
+        self._alength = aligned_length  # Hsp_align-len
         #   SNP information
         self._snp_pos = None
         self._snp = None
@@ -101,11 +117,19 @@ class Hsp(object):
         return self._name + ":" + str(self._evalue)
 
     def __eq__(self, other):
-        if isinstance(other, Hsp): # Check equality with other Hsp objects
-            name_bool = self._name == other._name # Ensure our name is equal to the other name
-            eval_bool = self._evalue == other._evalue # Is our evalue equal to the other evalue
-            score_bool = self._bits == other._bits # Is our score equal to the other score
-            return name_bool and eval_bool and score_bool # Return whether all of these are true
+        if isinstance(other, Hsp):  # Check equality with other Hsp objects
+            name_bool = (
+                self._name == other._name
+            )  # Ensure our name is equal to the other name
+            eval_bool = (
+                self._evalue == other._evalue
+            )  # Is our evalue equal to the other evalue
+            score_bool = (
+                self._bits == other._bits
+            )  # Is our score equal to the other score
+            return (
+                name_bool and eval_bool and score_bool
+            )  # Return whether all of these are true
         elif isinstance(other, str):
             return self._name == other
         elif isinstance(other, float):
@@ -158,70 +182,85 @@ class Hsp(object):
     def get_snp(self):
         """Return the SNP associated with this Hsp"""
         if not self._snp:
-            raise NoSNPError('No SNP for me: ' + str(self))
+            raise NoSNPError("No SNP for me: " + str(self))
         return self._snp
 
     @overload
     def get_snp_position(self, query_snp, expected):
         """Calculate the SNP position relative to reference"""
-        try: # Type checking
+        try:  # Type checking
             assert isinstance(query_snp, str)
             assert isinstance(expected, int)
         except AssertionError:
-            raise TypeError("'query_snp' must be of type 'str'; 'expected' must be of type 'int'")
-        try: # Value checking
-            assert len(query_snp) is 1
+            raise TypeError(
+                "'query_snp' must be of type 'str'; 'expected' must be of type 'int'"
+            )
+        try:  # Value checking
+            assert len(query_snp) == 1
             assert query_snp in snp.Lookup.IUPAC_CODES
         except AssertionError:
-            raise ValueError("'query_snp' must be a single character and in the set '%s'" % ', '.join(snp.Lookup.IUPAC_CODES))
+            raise ValueError(
+                "'query_snp' must be a single character and in the set '%s'"
+                % ", ".join(snp.Lookup.IUPAC_CODES)
+            )
         #   If we don't find the SNP in this hsp
         if self._query.find(query_snp) < 0:
-            raise NoSNPError("No query found in " + str(self)) # Error out
+            raise NoSNPError("No query found in " + str(self))  # Error out
         #   If the hsp sequence is less than our expected value or the location of the first query SNP in our sequence is less than our expected value and there is only one query SNP found
-        elif (len(self._query) < expected) or (self._query.find(query_snp) <= expected and self._query.count(query_snp) == 1):
+        elif (len(self._query) < expected) or (
+            self._query.find(query_snp) <= expected
+            and self._query.count(query_snp) == 1
+        ):
             #   Do some guesswork as to where the SNP is
             self._snp_pos = self._query.find(query_snp)
-            if self.get_rc(): # If we're on the reverse strand
-                return self._start - self._snp_pos # Start is actually the end
-            else: # If we're on the forward strand
-                return self._start + self._snp_pos # Start is actually the start
-        else: # Otherwise, we either have our position or need to deal with indels
+            if self.get_rc():  # If we're on the reverse strand
+                return self._start - self._snp_pos  # Start is actually the end
+            else:  # If we're on the forward strand
+                return self._start + self._snp_pos  # Start is actually the start
+        else:  # Otherwise, we either have our position or need to deal with indels
             #   Start with the expected position
             self._snp_pos = expected
             #   Get a substring up to and including this position
-            qsubstr = self._query[:self._snp_pos + 1]
+            qsubstr = self._query[: self._snp_pos + 1]
             #   While we haven't found our query SNP (query SNP should be at the end of the substring)
             while qsubstr[-1] != query_snp:
-                old = self._snp_pos # Old position
-                self._snp_pos = expected + qsubstr.count('-') # Add any deletions to our position
-                if old is self._snp_pos: # If we didn't change our position guess
-                    raise NoSNPError("Cannot find the SNP in " + self) # Error out to avoid infinite loops
-                qsubstr = self._query[:self._snp_pos + 1] # Replace our substring
+                old = self._snp_pos  # Old position
+                self._snp_pos = expected + qsubstr.count(
+                    "-"
+                )  # Add any deletions to our position
+                if old is self._snp_pos:  # If we didn't change our position guess
+                    raise NoSNPError(
+                        "Cannot find the SNP in " + self
+                    )  # Error out to avoid infinite loops
+                qsubstr = self._query[: self._snp_pos + 1]  # Replace our substring
             #   Calculate insertions
-            hsubstr = self._subject[:self._snp_pos + 1]
-            insertions = hsubstr.count('-')
-            if self.get_rc(): # If we're on the reverse strand
-                return self._start - self._snp_pos - insertions # Start is actually the end
-            else: # If we're on the forward strand
-                return self._start + self._snp_pos - insertions # Start is actually the start
+            hsubstr = self._subject[: self._snp_pos + 1]
+            insertions = hsubstr.count("-")
+            if self.get_rc():  # If we're on the reverse strand
+                return (
+                    self._start - self._snp_pos - insertions
+                )  # Start is actually the end
+            else:  # If we're on the forward strand
+                return (
+                    self._start + self._snp_pos - insertions
+                )  # Start is actually the start
 
     @get_snp_position.add
     def get_snp_position(self, lookup):
         """Calculate the SNP position relative to reference"""
-        try: # Type checking
+        try:  # Type checking
             assert isinstance(lookup, snp.Lookup)
         except AssertionError:
             raise TypeError
-        try: # Value checking
+        try:  # Value checking
             assert lookup.get_snpid() == self._name
         except AssertionError:
             raise ValueError
         iupac = lookup.get_sequence(iupac=True).upper()
-        query = self._query.replace('-', '').upper()
-        if len(query) >= lookup.get_length() or iupac.find(query) is 0:
+        query = self._query.replace("-", "").upper()
+        if len(query) >= lookup.get_length() or iupac.find(query) == 0:
             return self.get_snp_position(
-                query_snp=lookup.get_code(),
-                expected=lookup.get_forward_position()
+                query_snp=lookup.get_code(), expected=lookup.get_forward_position()
             )
         elif len(query) < lookup.get_length():
             expected = iupac.find(lookup.get_code(), lookup.get_forward_position())
@@ -229,11 +268,12 @@ class Hsp(object):
             if expected > aligned:
                 adj = expected - aligned
             elif expected < aligned:
-                adj = lookup.get_forward_position() + (aligned - expected) + query.find(lookup.get_code())
-            return self.get_snp_position(
-                query_snp=lookup.get_code(),
-                expected=adj
-            )
+                adj = (
+                    lookup.get_forward_position()
+                    + (aligned - expected)
+                    + query.find(lookup.get_code())
+                )
+            return self.get_snp_position(query_snp=lookup.get_code(), expected=adj)
         else:
             raise ValueError("Something happened...")
 
@@ -242,15 +282,19 @@ class Hsp(object):
         try:
             assert self._snp_pos is not None
             ref = self._subject[self._snp_pos]
-            assert ref.upper() in 'ACGTN'
+            assert ref.upper() in "ACGTN"
             return ref
         except AssertionError:
-            raise NoSNPError('No reference allele for ' + str(self) + ', have you run Hsp.get_snp_position() yet?')
+            raise NoSNPError(
+                "No reference allele for "
+                + str(self)
+                + ", have you run Hsp.get_snp_position() yet?"
+            )
 
     @overload
     def add_snp(self, this_snp):
         """Add a SNP to our Hsp"""
-        try: # Type checking
+        try:  # Type checking
             assert isinstance(this_snp, snp.SNP)
         except AssertionError:
             raise TypeError
@@ -259,19 +303,21 @@ class Hsp(object):
     @add_snp.add
     def add_snp(self, lookup):
         """Add a SNP to our HSP"""
-        try: # Type checking
+        try:  # Type checking
             assert isinstance(lookup, snp.Lookup)
         except AssertionError:
             raise TypeError("'lookup' must be of type 'snp.Lookup'")
-        try: # Value checking
+        try:  # Value checking
             assert self._name == lookup.get_snpid()
             # s = snp.SNP(lookup=lookup, hsp=self)
             # self.add_snp(this_snp=s)
             self.add_snp(this_snp=snp.SNP(lookup=lookup, hsp=self))
         except AssertionError:
-            raise ValueError("Lookup " + str(lookup) + " doesn't match with " + str(self))
+            raise ValueError(
+                "Lookup " + str(lookup) + " doesn't match with " + str(self)
+            )
         except:
-            print('hmm', self, file=sys.stderr)
+            print("hmm", self, file=sys.stderr)
             raise
 
 
@@ -283,9 +329,11 @@ def get_value(tag, value):
         assert isinstance(value, str)
         return tag.findChild(value).text
     except AssertionError:
-        raise TypeError("'tag' must be of type 'element.tag'; 'value' must be of type 'str'")
+        raise TypeError(
+            "'tag' must be of type 'element.tag'; 'value' must be of type 'str'"
+        )
     except AttributeError:
-        return ''
+        return ""
     except:
         raise
 
@@ -293,39 +341,51 @@ def get_value(tag, value):
 #   A function to parse the HSP section of a BLAST XML file
 def parse_hsp(hsp):
     """Parse the HSP section of a BLAST XML result"""
-    try: # Type checking
+    try:  # Type checking
         assert isinstance(hsp, element.Tag)
     except AssertionError:
         raise TypeError("'hsp' must be of type 'element.Tag'")
     #   Ensure that our HSP has at least one mismatch
     # if hsp.findChild('Hsp_midline').text.count(' ') < 1:
-    if get_value(tag=hsp, value='Hsp_midline').count(' ') < 1:
-        raise NoSNPError('No mismatches found for this Hsp')
+    if get_value(tag=hsp, value="Hsp_midline").count(" ") < 1:
+        raise NoSNPError("No mismatches found for this Hsp")
     return tuple(get_value(tag=hsp, value=val) for val in VALS)
 
 
 #   A function to parse the Hit section of a BLAST XML file
 def parse_hit(snpid, hit):
     """Parse the Hit section of a BLAST XML result"""
-    try: # Type checking
+    try:  # Type checking
         assert isinstance(snpid, str)
         assert isinstance(hit, element.Tag)
     except AssertionError:
-        raise TypeError("'snpid' must be of type 'str'; 'hit' must be of type 'element.Tag'")
+        raise TypeError(
+            "'snpid' must be of type 'str'; 'hit' must be of type 'element.Tag'"
+        )
     #   Get and check the chromosome information
-    chrom = get_value(tag=hit, value='Hit_def')
+    chrom = get_value(tag=hit, value="Hit_def")
     if chrom == NO_DEF_MESSAGE:
-        chrom = get_value(tag=hit, value='Hit_accession')
-    hsps = list() # Create a holding list
-    for hsp in hit.findAll('Hsp'):
+        chrom = get_value(tag=hit, value="Hit_accession")
+    hsps = list()  # Create a holding list
+    for hsp in hit.findAll("Hsp"):
         try:
             hsp_vals = parse_hsp(hsp)
         except NoSNPError as nosnp:
-            evalue = get_value(tag=hsp, value='Hsp_evalue')
-            print(nosnp.message, snpid + ':' + evalue, file=sys.stderr)
+            evalue = get_value(tag=hsp, value="Hsp_evalue")
+            print(nosnp.message, snpid + ":" + evalue, file=sys.stderr)
         else:
-            (bit_score, evalue, hsp_start, hsp_end, strand, identity, align_length, query, reference) = hsp_vals # Unpack our tuple
-            hsp = Hsp( # Create an Hsp object
+            (
+                bit_score,
+                evalue,
+                hsp_start,
+                hsp_end,
+                strand,
+                identity,
+                align_length,
+                query,
+                reference,
+            ) = hsp_vals  # Unpack our tuple
+            hsp = Hsp(  # Create an Hsp object
                 chrom=chrom,
                 name=snpid,
                 evalue=float(evalue),
@@ -336,9 +396,9 @@ def parse_hit(snpid, hit):
                 hstrand=int(strand),
                 bit_score=float(bit_score),
                 identity=int(identity),
-                aligned_length=int(align_length)
+                aligned_length=int(align_length),
             )
-            hsps.append(hsp) # Add to our list
+            hsps.append(hsp)  # Add to our list
     if hsps:
         return hsps
     else:
@@ -362,5 +422,7 @@ def rank_hsps(hsps):
         else:
             hsp_dict[h.get_name()] = [h]
     #   Rank-remove our HSPs
-    hsps_ranked = {name : rank_remove(hsp_list, lowest=True) for name, hsp_list in hsp_dict.items()}
+    hsps_ranked = {
+        name: rank_remove(hsp_list, lowest=True) for name, hsp_list in hsp_dict.items()
+    }
     return hsps_ranked

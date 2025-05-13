@@ -3,7 +3,7 @@
 """Write and parse configuration files for BLASTn"""
 
 import sys
-if sys.version_info.major is not 3:
+if sys.version_info.major != 3:
     sys.exit("Please use Python 3 for this module: " + __name__)
 
 import configparser

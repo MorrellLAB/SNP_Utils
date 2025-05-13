@@ -2,12 +2,14 @@
 """Extra utilties"""
 
 import sys
-if sys.version_info.major is not 3:
+
+if sys.version_info.major != 3:
     sys.exit("Please use Python 3 for this module: " + __name__)
 
 
 import os
 from datetime import datetime
+
 
 #   A class to hold values for an ##INFO declaration
 class INFO(object):
@@ -19,23 +21,23 @@ class INFO(object):
         INFO Description    (str)
     """
 
-    _VALID_TYPES = {'Integer', 'Float', 'Flag', 'Character', 'String'}
-    _CHAR_NUMS = {'A', 'G', 'R', '.'}
+    _VALID_TYPES = {"Integer", "Float", "Flag", "Character", "String"}
+    _CHAR_NUMS = {"A", "G", "R", "."}
 
     def __init__(self, infoid, number, infotype, description):
-        try: # Type checking
+        try:  # Type checking
             assert isinstance(infoid, str)
             assert isinstance(number, (int, str))
             assert isinstance(infotype, str)
             assert isinstance(description, str)
         except AssertionError:
             raise TypeError
-        try: # Value checking
+        try:  # Value checking
             assert infotype in self._VALID_TYPES
-            if infotype == 'Flag':
-                assert int(number) is 0
+            if infotype == "Flag":
+                assert int(number) == 0
             if isinstance(number, str):
-                assert len(number) is 1
+                assert len(number) == 1
                 assert number.upper() in self._CHAR_NUMS
         except AssertionError:
             raise ValueError
@@ -72,13 +74,13 @@ class INFO(object):
 
     def __call__(self):
         """Format the VCF ##INFO declaration for printing"""
-        vals = ( # Assemble the meat of the INFO declaration
-            'ID=' + self._infoid,
-            'Number=' + self._number,
-            'Type=' + self._type,
-            'Description="' + self._description + '"'
+        vals = (  # Assemble the meat of the INFO declaration
+            "ID=" + self._infoid,
+            "Number=" + self._number,
+            "Type=" + self._type,
+            'Description="' + self._description + '"',
         )
-        info = '##INFO=<' + ','.join(vals) + '>' # Create the full declaration
+        info = "##INFO=<" + ",".join(vals) + ">"  # Create the full declaration
         return info
 
     def get_id(self):
@@ -110,7 +112,7 @@ def no_error(func, errval=None, *args, **kwargs):
 #   A function to remove duplicates from a list
 def deduplicate_list(with_dups, key):
     """Deduplicate a list, or tuple given a list, set, or tuple of values that should not be in the first list
-        with_dups is the list with values found in key"""
+    with_dups is the list with values found in key"""
     try:
         assert isinstance(with_dups, (list, tuple))
         assert isinstance(key, list) or isinstance(key, set) or isinstance(key, tuple)
@@ -132,33 +134,35 @@ def rank_remove(data, lowest=False):
         assert isinstance(data, (list, tuple))
         assert isinstance(lowest, bool)
     except AssertionError:
-        raise TypeError("'data' must be of type 'list' or 'tuple', 'lowest' must be of type 'bool'")
+        raise TypeError(
+            "'data' must be of type 'list' or 'tuple', 'lowest' must be of type 'bool'"
+        )
     #   Create our first result
     try:
         result = [data[0]]
-    except KeyError: # There must be at least one data entry
+    except KeyError:  # There must be at least one data entry
         raise ValueError("'data' must have at least one value")
     try:
-        for value in data[1:]: # For every other data point
-            if lowest: # If we're looking for the lowest rank
-                if value < result[0]: # If lower
-                    result = [value] # Replace
-                elif value == result[0]: # If equal
-                    result.append(value) # Add
-                else: # Otherwise
-                    continue # Pass
-            else: # If we're looking for the highest rank
-                if value > result[0]: # If greater
-                    result = [value] # Replace
-                elif value == result[0]: # If equal
-                    result.append(value) # Add
-                else: # Otherwise
-                    continue # Pass
-    except KeyError: # If there is only one data point (taken above)
-        pass # Skip this, we return the one point
-    except: # Other exceptions
-        raise # Let someone else deal with it
-    return result # Return our list
+        for value in data[1:]:  # For every other data point
+            if lowest:  # If we're looking for the lowest rank
+                if value < result[0]:  # If lower
+                    result = [value]  # Replace
+                elif value == result[0]:  # If equal
+                    result.append(value)  # Add
+                else:  # Otherwise
+                    continue  # Pass
+            else:  # If we're looking for the highest rank
+                if value > result[0]:  # If greater
+                    result = [value]  # Replace
+                elif value == result[0]:  # If equal
+                    result.append(value)  # Add
+                else:  # Otherwise
+                    continue  # Pass
+    except KeyError:  # If there is only one data point (taken above)
+        pass  # Skip this, we return the one point
+    except:  # Other exceptions
+        raise  # Let someone else deal with it
+    return result  # Return our list
 
 
 #   A function to find the closest value
@@ -175,7 +179,9 @@ def closest_value(iterable, value, return_item=True):
     except AssertionError:
         raise TypeError
     closest = lambda val: abs(val - value)
-    if isinstance(iterable, (list, tuple)) or (isinstance(iterable, dict) and not return_item):
+    if isinstance(iterable, (list, tuple)) or (
+        isinstance(iterable, dict) and not return_item
+    ):
         return min(iterable, key=closest)
     elif isinstance(iterable, dict) and return_item:
         return iterable[min(iterable, key=closest)]
@@ -186,38 +192,24 @@ def closest_value(iterable, value, return_item=True):
 #   A function to make a VCF header
 def vcf_header(ref, info=None):
     """Make a header for a VCF file given a reference genome and an optional list of INFO objects"""
-    try: # Type checking
+    try:  # Type checking
         assert isinstance(ref, str)
         assert isinstance(info, list) or info is None
         for i in info:
             assert isinstance(i, INFO)
     except TypeError:
-        pass # Ignore TypeErrors if 'info' is None
-    except AssertionError: # Catch assertions and raise as TypeError
+        pass  # Ignore TypeErrors if 'info' is None
+    except AssertionError:  # Catch assertions and raise as TypeError
         raise TypeError
     #   The first several header lines
-    fileformat = '##fileformat=VCFv4.2'
-    filedate = '##fileDate=' + datetime.now().strftime("%Y%m%d")
-    source = '##source=' + os.path.basename(sys.argv[0])
-    reference = '##reference=' + os.path.basename(ref)
-    colnames = (
-        '#CHROM',
-        'POS',
-        'ID',
-        'REF',
-        'ALT',
-        'QUAL',
-        'FILTER',
-        'INFO'
-    )
-    header = [
-        fileformat,
-        filedate,
-        source,
-        reference
-    ]
+    fileformat = "##fileformat=VCFv4.2"
+    filedate = "##fileDate=" + datetime.now().strftime("%Y%m%d")
+    source = "##source=" + os.path.basename(sys.argv[0])
+    reference = "##reference=" + os.path.basename(ref)
+    colnames = ("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO")
+    header = [fileformat, filedate, source, reference]
     #   Add lines from INFO objects
     if info:
         header.extend([i() for i in info])
-    header.append('\t'.join(colnames))
-    return '\n'.join(header)
+    header.append("\t".join(colnames))
+    return "\n".join(header)
