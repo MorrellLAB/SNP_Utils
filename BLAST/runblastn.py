@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-if sys.version_info.major is not 3:
+if sys.version_info.major != 3:
     sys.exit("Please use Python 3 for this module: " + __name__)
 
 import os
